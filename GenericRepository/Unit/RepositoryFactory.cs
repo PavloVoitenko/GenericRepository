@@ -1,6 +1,7 @@
 ﻿using GenericRepository.Abstractions.Entities;
 using GenericRepository.Abstractions.Repositories;
 using GenericRepository.Implementations;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -11,7 +12,7 @@ namespace GenericRepository.Unit
         IRepository Create<TEntity>(DbContext context) where TEntity : class, IEntity, new();
     }
 
-    public abstract class RepositoryFactory : IRepositoryFactory
+    public abstract class RepositoryFactoryBase : IRepositoryFactory
     {
         public IRepository Create<TEntity>(DbContext context)
             where TEntity : class, IEntity, new()
@@ -24,17 +25,13 @@ namespace GenericRepository.Unit
         private IRepository CreateDefault<TEntity>(DbContext context)
             where TEntity : class, IEntity, new()
         {
-            switch (new TEntity())
+            return (new TEntity()) switch
             {
-                case IRangeEntity<DateTime> _:
-                    return CreateGenericRepository<TEntity>(typeof(DateStateRepository<>), context);
-                case IRangeEntity<TimeSpan> _:
-                    return CreateGenericRepository<TEntity>(typeof(TimeStateRepository<>), context);
-                case INamedEntity _:
-                    return CreateGenericRepository<TEntity>(typeof(NamedRepository<>), context);
-                default:
-                    return new Repository<TEntity>(context);
-            }
+                IRangeEntity<DateTime> _ => CreateGenericRepository<TEntity>(typeof(DateStateRepository<>), context),
+                IRangeEntity<TimeSpan> _ => CreateGenericRepository<TEntity>(typeof(TimeStateRepository<>), context),
+                INamedEntity _ => CreateGenericRepository<TEntity>(typeof(NamedRepository<>), context),
+                _ => new Repository<TEntity>(context),
+            };
         }
 
         private IRepository CreateGenericRepository<TEntity>(Type repositoryType, DbContext context)
@@ -42,5 +39,10 @@ namespace GenericRepository.Unit
             var genericRepoType = repositoryType.MakeGenericType(typeof(TEntity));
             return (IRepository)Activator.CreateInstance(genericRepoType, context);
         }
+    }
+
+    public class RepositoryFactory : RepositoryFactoryBase
+    {
+        public override IRepository CreateCustom(DbContext context) => null;
     }
 }
