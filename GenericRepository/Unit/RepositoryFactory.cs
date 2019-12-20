@@ -27,8 +27,9 @@ namespace GenericRepository.Unit
         {
             return (new TEntity()) switch
             {
-                IRangeEntity<DateTime> _ => CreateGenericRepository<TEntity>(typeof(DateStateRepository<>), context),
-                IRangeEntity<TimeSpan> _ => CreateGenericRepository<TEntity>(typeof(TimeStateRepository<>), context),
+                IDateTimeEntity _ => CreateGenericRepository<TEntity>(typeof(DateTimeStateRepository<>), context),
+                IRangeEntity<DateTime> _ => CreateGenericRepository<TEntity>(typeof(DateRangeRepository<>), context),
+                IRangeEntity<TimeSpan> _ => CreateGenericRepository<TEntity>(typeof(TimeRangeRepository<>), context),
                 INamedEntity _ => CreateGenericRepository<TEntity>(typeof(NamedRepository<>), context),
                 _ => new Repository<TEntity>(context),
             };

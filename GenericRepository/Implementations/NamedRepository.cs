@@ -2,6 +2,7 @@
 using GenericRepository.Abstractions.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GenericRepository.Implementations
@@ -26,22 +27,22 @@ namespace GenericRepository.Implementations
             await Commit();
             return entity;
         }
-        public async Task DeleteNameAsync(string name)
+        public void DeleteName(string name)
         {
-            var entity = await FindNameAsync(name);
+            var entity = FindName(name);
 
             if (entity != null)
             {
                 Delete(entity);
             }
         }
-        public async Task<TEntity> FindNameAsync(string name)
+        public TEntity FindName(string name)
         {
-            return await Db.Set<TEntity>().FirstOrDefaultAsync(e => e.Name == name);
+            return Db.Set<TEntity>().FirstOrDefault(e => e.Name == name);
         }
         public async Task<TEntity> FindOrCreateAsync(string name, Action<TEntity> initialize = null)
         {
-            return await FindNameAsync(name) ?? await CreateNameAsync(name, initialize);
+            return FindName(name) ?? await CreateNameAsync(name, initialize);
         }
     }
 }
