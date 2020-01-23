@@ -1,5 +1,6 @@
 ﻿using GenericRepository.Abstractions.Entities;
 using GenericRepository.Abstractions.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,6 +29,12 @@ namespace GenericRepository.Implementations
         {
             return Db.Set<TEntity>();
         }
+
+        public virtual async Task<TEntity> Find(int id)
+        {
+            return await Db.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
+        }
+
         public virtual void Update(params TEntity[] entities)
         {
             Db.UpdateRange(entities);

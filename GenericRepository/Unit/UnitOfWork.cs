@@ -1,16 +1,21 @@
 ﻿using GenericRepository.Abstractions.Entities;
 using GenericRepository.Abstractions.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GenericRepository.Unit
 {
     public interface IUnitOfWork
     {
         IRepository<TEntity> Repo<TEntity>() where TEntity : class, IEntity, new();
-        TRepo Repo<TRepo, TEntity>()
+        TRepo Repo<TEntity, TRepo>()
             where TRepo : IRepository<TEntity>
+            where TEntity : class, IEntity, new();
+
+        IQueryable<TEntity> All<TEntity>()
             where TEntity : class, IEntity, new();
     }
 
@@ -31,10 +36,10 @@ namespace GenericRepository.Unit
 
         public IRepository<TEntity> Repo<TEntity>() where TEntity : class, IEntity, new()
         {
-            return Repo<IRepository<TEntity>, TEntity>();
+            return Repo<TEntity, IRepository<TEntity>>();
         }
 
-        public TRepo Repo<TRepo, TEntity>()
+        public TRepo Repo<TEntity, TRepo>()
             where TRepo : IRepository<TEntity>
             where TEntity : class, IEntity, new()
         {
@@ -46,6 +51,12 @@ namespace GenericRepository.Unit
             }
 
             return (TRepo)_repositories[entityType];
+        }
+
+        public IQueryable<TEntity> All<TEntity>()
+            where TEntity : class, IEntity, new()
+        {
+            return Repo<TEntity>().Get();
         }
     }
 }

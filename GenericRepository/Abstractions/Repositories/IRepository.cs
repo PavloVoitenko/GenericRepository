@@ -13,6 +13,7 @@ namespace GenericRepository.Abstractions.Repositories
         where TEntity : IEntity
     {
         IQueryable<TEntity> Get();
+        Task<TEntity> Find(int id);
         void Create(params TEntity[] entities);
         void Update(params TEntity[] entities);
         void Delete(params TEntity[] entities);
